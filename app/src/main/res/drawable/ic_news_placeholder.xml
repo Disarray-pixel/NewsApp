@@ -1,0 +1,61 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="90dp"
+    android:viewportWidth="120"
+    android:viewportHeight="90">
+
+    <!-- Фон -->
+    <path
+        android:pathData="M0,0L120,0L120,90L0,90Z"
+        android:fillColor="#F5F5F5"/>
+
+    <!-- Газета/документ -->
+    <path
+        android:pathData="M20,20L100,20L100,70L20,70Z"
+        android:fillColor="#E0E0E0"
+        android:strokeColor="#BDBDBD"
+        android:strokeWidth="1"/>
+
+    <!-- Заголовок новости -->
+    <path
+        android:pathData="M25,25L95,25L95,30L25,30Z"
+        android:fillColor="#9E9E9E"/>
+
+    <path
+        android:pathData="M25,35L85,35L85,40L25,40Z"
+        android:fillColor="#BDBDBD"/>
+
+    <!-- Текст новости -->
+    <path
+        android:pathData="M25,45L95,45L95,48L25,48Z"
+        android:fillColor="#E0E0E0"/>
+
+    <path
+        android:pathData="M25,52L90,52L90,55L25,55Z"
+        android:fillColor="#E0E0E0"/>
+
+    <path
+        android:pathData="M25,59L75,59L75,62L25,62Z"
+        android:fillColor="#E0E0E0"/>
+
+    <!-- Иконка "изображение не найдено" -->
+    <path
+        android:pathData="M50,30m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0"
+        android:fillColor="#9E9E9E"/>
+
+    <path
+        android:pathData="M46,26L54,26L54,34L46,34Z"
+        android:fillColor="@android:color/white"
+        android:strokeColor="#757575"
+        android:strokeWidth="1"/>
+
+    <path
+        android:pathData="M48,28L52,32L50,30L48,32Z"
+        android:fillColor="#757575"/>
+
+    <!-- Символ RBC внизу -->
+    <path
+        android:pathData="M85,65L95,65L95,67L85,67Z"
+        android:fillColor="#1976D2"/>
+
+</vector>
