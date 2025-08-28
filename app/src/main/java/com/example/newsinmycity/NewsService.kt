@@ -14,15 +14,47 @@ class NewsService {
     // Если тестируете на реальном устройстве, используйте IP вашего компьютера:
     // private val apiBaseUrl = "http://192.168.1.XXX:3001"
 
+    // ОСНОВНОЙ метод - теперь получает объединенные новости (RSS + Telegram)
     suspend fun getNewsForCity(cityName: String): List<NewsItem> {
-        return withContext(Dispatchers.IO) { // Выполняем в фоновом потоке
+        return withContext(Dispatchers.IO) {
+            try {
+                // Используем endpoint объединенных новостей
+                val url = "$apiBaseUrl/api/news/combined/${cityName.lowercase().replace(" ", "-")}"
+                val response = makeHttpRequest(url)
+                parseNewsResponse(response)
+            } catch (e: Exception) {
+                println("Combined news request failed: ${e.message}")
+                e.printStackTrace()
+                emptyList()
+            }
+        }
+    }
+
+    // Метод только для RSS новостей (резерв)
+    suspend fun getRssNewsForCity(cityName: String): List<NewsItem> {
+        return withContext(Dispatchers.IO) {
             try {
                 val url = "$apiBaseUrl/api/news/${cityName.lowercase().replace(" ", "-")}"
                 val response = makeHttpRequest(url)
                 parseNewsResponse(response)
             } catch (e: Exception) {
+                println("RSS news request failed: ${e.message}")
                 e.printStackTrace()
-                // Возвращаем пустой список в случае ошибки
+                emptyList()
+            }
+        }
+    }
+
+    // Метод только для Telegram новостей (резерв)
+    suspend fun getTelegramNews(): List<NewsItem> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val url = "$apiBaseUrl/api/telegram/news"
+                val response = makeHttpRequest(url)
+                parseNewsResponse(response)
+            } catch (e: Exception) {
+                println("Telegram news request failed: ${e.message}")
+                e.printStackTrace()
                 emptyList()
             }
         }
@@ -36,9 +68,10 @@ class NewsService {
 
         return try {
             connection.requestMethod = "GET"
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
+            connection.connectTimeout = 15000 // Увеличили таймаут для Telegram
+            connection.readTimeout = 15000
             connection.setRequestProperty("Accept", "application/json")
+            connection.setRequestProperty("User-Agent", "NewsApp/1.0")
 
             val responseCode = connection.responseCode
             println("Response code: $responseCode")
@@ -74,6 +107,14 @@ class NewsService {
             val newsJson = dataArray.getJSONObject(i)
             val sourceJson = newsJson.getJSONObject("source")
 
+            // Определяем тип источника по platform поле
+            val platform = newsJson.optString("platform", "rss")
+            val sourceType = when (platform) {
+                "telegram" -> SourceType.TELEGRAM
+                "rss" -> SourceType.RSS
+                else -> SourceType.RSS
+            }
+
             val newsItem = NewsItem(
                 id = i + 1, // Генерируем простой ID
                 title = newsJson.optString("title", "Без заголовка"),
@@ -86,11 +127,7 @@ class NewsService {
                 category = newsJson.optString("category", "Общее"),
                 source = NewsSource(
                     name = sourceJson.optString("name", "Неизвестный источник"),
-                    type = when (sourceJson.optString("type", "RSS")) {
-                        "RSS" -> SourceType.RSS
-                        "TELEGRAM" -> SourceType.TELEGRAM
-                        else -> SourceType.RSS
-                    },
+                    type = sourceType, // Теперь корректно определяем тип
                     url = newsJson.optString("sourceUrl", "")
                 ),
                 isLiked = false // Будет загружаться из LikesManager
@@ -98,6 +135,10 @@ class NewsService {
 
             newsList.add(newsItem)
         }
+
+        println("Parsed ${newsList.size} news items:")
+        println("  RSS: ${newsList.count { it.source.type == SourceType.RSS }}")
+        println("  Telegram: ${newsList.count { it.source.type == SourceType.TELEGRAM }}")
 
         return newsList
     }
