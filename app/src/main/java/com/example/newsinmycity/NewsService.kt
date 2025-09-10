@@ -10,7 +10,7 @@ import java.net.URL
 
 class NewsService {
 
-    private val apiBaseUrl = "http://10.0.2.2:3001" // Для эмулятора Android
+    private val apiBaseUrl = "http://10.0.2.2:3002" // Для эмулятора Android
     // Если тестируете на реальном устройстве, используйте IP вашего компьютера:
     // private val apiBaseUrl = "http://192.168.1.XXX:3001"
 
